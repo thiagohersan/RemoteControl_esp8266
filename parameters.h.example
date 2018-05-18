@@ -1,0 +1,3 @@
+String WIFI_SSID = "guest";
+String WIFI_PASS = "password";
+String SERVER_NAME = "server";

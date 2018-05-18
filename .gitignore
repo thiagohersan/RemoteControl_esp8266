@@ -1,0 +1,4 @@
+.DS*
+*.bin
+.parameters
+parameters.h
