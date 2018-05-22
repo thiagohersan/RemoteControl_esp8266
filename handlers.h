@@ -3,7 +3,7 @@
 StaticJsonBuffer<384> buttonBuffer;
 JsonObject& mButtons = buttonBuffer.createObject();
 
-void setupButtonMappings() {
+int setupButtonMappings() {
   mButtons["POWER"] = 0xE0E040BF;
   mButtons["VOLUME_UP"] = 0xE0E0E01F;
   mButtons["VOLUME_DOWN"] = 0xE0E0D02F;
@@ -16,9 +16,10 @@ void setupButtonMappings() {
   mButtons["ENTER"] = 0xE0E016E9;
   mButtons["RETURN"] = 0xE0E01AE5;
   mButtons["EXIT"] = 0xE0E0B44B;
+  return mButtons.size();
 }
 
-const int mButtonsLength = mButtons.size();
+const int mButtonsLength = setupButtonMappings();
 
 String buildHelpResponse() {
   String response = "\
@@ -87,7 +88,6 @@ void handleRootPost() {
 }
 
 void addAllHandlers() {
-  setupButtonMappings();
   mServer.on("/", HTTP_GET, handleRootGet);
   mServer.on("/", HTTP_POST, handleRootPost);
   mServer.onNotFound(handleNotFound);
