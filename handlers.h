@@ -19,7 +19,7 @@ String buildHelpResponse() {
 
   String response = "\
 <h3>Para enviar comandos para o controle, \
-    fa&ccedil;a um POST a esse endere&ccedil;o com um json no seguinte formato:\n\
+    fa&ccedil;a um <code style=\"color: #d80000\">POST</code> a esse endere&ccedil;o com um json no seguinte formato:\n\
 </h3>\n\
 \n\
 <pre>\n\
@@ -33,7 +33,9 @@ String buildHelpResponse() {
     ]\n\
   }\n\
 </pre>\n\
-<h3>Onde <code>[ \'COMMAND_0\', \'COMMAND_1\', \'COMMAND_2\', ... ]</code> &eacute; uma lista com os seguintes poss&iacute;veis comandos:\
+<h3>onde:<br>\
+    <code style=\"color: #8A2BE2\">type</code> &eacute; o tipo de TV sendo testada (LG ou SAMSUNG)<br>\
+    <code style=\"color: #8A2BE2\">commands</code> &eacute; uma lista com os seguintes poss&iacute;veis comandos:\
 </h3>\n";
 
   response += "<ul>";
