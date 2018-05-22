@@ -3,16 +3,22 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+
+const short IR_PIN = D2;
+const short LED_PIN = D4;
+
 ESP8266WebServer mServer(80);
 int buttonPressDurationMillis = 400;
+IRsend mIRsend(IR_PIN);
 
 #include "parameters.h"
 #include "handlers.h"
 
-const short LED_PIN = D4;
-
 void setup() {
   pinMode(10, OUTPUT);
+  mIRsend.begin();
   Serial.begin(115200);
   Serial.println("\nSetup");
   pinMode(LED_PIN, OUTPUT);

@@ -1,24 +1,24 @@
 #include <ArduinoJson.h>
 
-const String mButtons[] = {
-  "POWER",
-  "VOLUME_UP",
-  "VOLUME_DOWN",
-  "CHANNEL_UP",
-  "CHANNEL_DOWN",
-  "ARROW_UP",
-  "ARROW_DOWN",
-  "ARROW_LEFT",
-  "ARROW_RIGHT"
-};
-const int mButtonsLength = sizeof(mButtons) / sizeof(String);
+StaticJsonBuffer<384> buttonBuffer;
+JsonObject& mButtons = buttonBuffer.createObject();
 
-int getCommandIndex(String cmd) {
-  for (int i = 0; i < mButtonsLength; i++) {
-    if (cmd == mButtons[i]) return i;
-  }
-  return -1;
+void setupButtonMappings() {
+  mButtons["POWER"] = 0xE0E040BF;
+  mButtons["VOLUME_UP"] = 0xE0E0E01F;
+  mButtons["VOLUME_DOWN"] = 0xE0E0D02F;
+  mButtons["CHANNEL_UP"] = 0xE0E048B7;
+  mButtons["CHANNEL_DOWN"] = 0xE0E008F7;
+  mButtons["ARROW_UP"] = 0xE0E006F9;
+  mButtons["ARROW_DOWN"] = 0xE0E08679;
+  mButtons["ARROW_LEFT"] = 0xE0E0A659;
+  mButtons["ARROW_RIGHT"] = 0xE0E046B9;
+  mButtons["ENTER"] = 0xE0E016E9;
+  mButtons["RETURN"] = 0xE0E01AE5;
+  mButtons["EXIT"] = 0xE0E0B44B;
 }
+
+const int mButtonsLength = mButtons.size();
 
 String buildHelpResponse() {
   String response = "\
@@ -29,7 +29,6 @@ String buildHelpResponse() {
 \n\
 <pre>\n\
   {\n\
-    \'pressDuration\': NNN,\n\
     \'commands\': [\n\
       \'COMMAND_0\',\n\
       \'COMMAND_1\',\n\
@@ -38,13 +37,12 @@ String buildHelpResponse() {
     ]\n\
   }\n\
 </pre>\n\
-<h3>Onde <code>NNN</code> &eacute; a dura&ccedil;&atilde;o dos apertos de bot&otilde;es em milissegundos e\
-    <code>[ \'COMMAND_0\', \'COMMAND_1\', \'COMMAND_2\', ... ]</code> &eacute; uma lista com os seguintes poss&iacute;veis comandos:\
+<h3>Onde <code>[ \'COMMAND_0\', \'COMMAND_1\', \'COMMAND_2\', ... ]</code> &eacute; uma lista com os seguintes poss&iacute;veis comandos:\
 </h3>\n";
 
   response += "<ul>";
-  for (int i = 0; i < mButtonsLength; i++) {
-    response += "<li>" + mButtons[i] + " </li>\n";
+  for (auto button : mButtons) {
+    response += "<li>" + String(button.key) + " </li>\n";
   }
   response += " </ul>";
 
@@ -64,9 +62,7 @@ void handleRootGet() {
 }
 
 void handleRootPost() {
-  String response = "{ ";
-
-  StaticJsonBuffer<200> jsonBuffer;
+  StaticJsonBuffer<512> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(mServer.arg("plain"));
 
   if (!root.success()) {
@@ -76,24 +72,22 @@ void handleRootPost() {
   const int jsonPressDuration = root["pressDuration"];
   if (jsonPressDuration) {
     buttonPressDurationMillis = jsonPressDuration;
-    response += "duration: " + String(buttonPressDurationMillis);
   }
 
-  response += " commands: [";
   JsonArray& commands = root["commands"];
   for (auto cmd : commands) {
-    int cmdIndex = getCommandIndex(cmd);
-    if (cmdIndex > -1 && cmdIndex < mButtonsLength) {
-      response += String(cmdIndex) + ", ";
+    JsonVariant code = mButtons[cmd.as<String>()];
+    if (code.success()) {
+      mIRsend.sendSAMSUNG(code.as<int>(), 32, 4);
+      delay(buttonPressDurationMillis);
     }
   }
-  response += "] }";
-  Serial.println(response);
 
-  mServer.send(200, "text/plain", response);
+  mServer.send(200, "text/plain", String("success"));
 }
 
 void addAllHandlers() {
+  setupButtonMappings();
   mServer.on("/", HTTP_GET, handleRootGet);
   mServer.on("/", HTTP_POST, handleRootPost);
   mServer.onNotFound(handleNotFound);
