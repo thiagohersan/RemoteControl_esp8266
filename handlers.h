@@ -3,6 +3,8 @@
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
 
+#include "codes.h"
+
 const short IR_PIN = D2;
 const short LED_PIN = D4;
 
@@ -10,28 +12,11 @@ ESP8266WebServer mServer(80);
 IRsend mIRsend(IR_PIN);
 const int COMMAND_DELAY_MILLIS = 300;
 
-StaticJsonBuffer<384> buttonBuffer;
-JsonObject& mButtons = buttonBuffer.createObject();
-
-int setupButtonMappings() {
-  mButtons["POWER"] = 0xE0E040BF;
-  mButtons["VOLUME_UP"] = 0xE0E0E01F;
-  mButtons["VOLUME_DOWN"] = 0xE0E0D02F;
-  mButtons["CHANNEL_UP"] = 0xE0E048B7;
-  mButtons["CHANNEL_DOWN"] = 0xE0E008F7;
-  mButtons["ARROW_UP"] = 0xE0E006F9;
-  mButtons["ARROW_DOWN"] = 0xE0E08679;
-  mButtons["ARROW_LEFT"] = 0xE0E0A659;
-  mButtons["ARROW_RIGHT"] = 0xE0E046B9;
-  mButtons["ENTER"] = 0xE0E016E9;
-  mButtons["RETURN"] = 0xE0E01AE5;
-  mButtons["EXIT"] = 0xE0E0B44B;
-  return mButtons.size();
-}
-
-const int mButtonsLength = setupButtonMappings();
-
 String buildHelpResponse() {
+  StaticJsonBuffer<1024> buttonBuffer;
+  JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
+  JsonObject& commands = mButtons["lg"];
+
   String response = "\
 <h3>Para enviar comandos para o controle, \
     fa&ccedil;a um POST a esse endere&ccedil;o com um json no seguinte formato:\n\
@@ -39,6 +24,7 @@ String buildHelpResponse() {
 \n\
 <pre>\n\
   {\n\
+    \'type\': \'(LG | SAMSUNG)\',\n\
     \'commands\': [\n\
       \'COMMAND_0\',\n\
       \'COMMAND_1\',\n\
@@ -51,8 +37,8 @@ String buildHelpResponse() {
 </h3>\n";
 
   response += "<ul>";
-  for (auto button : mButtons) {
-    response += "<li>" + String(button.key) + " </li>\n";
+  for (auto command : commands) {
+    response += "<li>" + String(command.key) + " </li>\n";
   }
   response += " </ul>";
 
@@ -72,6 +58,9 @@ void handleRootGet() {
 }
 
 void handleRootPost() {
+  StaticJsonBuffer<1024> buttonBuffer;
+  JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
+
   StaticJsonBuffer<512> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(mServer.arg("plain"));
 
@@ -79,12 +68,22 @@ void handleRootPost() {
     mServer.send(500, "text/plain", String("invalid json parameter"));
   }
 
+  String remoteType = "lg";
+  if (root["type"].as<String>() != "") {
+    remoteType = root["type"].as<String>();
+    remoteType.toLowerCase();
+  }
+
   JsonArray& commands = root["commands"];
   for (auto cmd : commands) {
-    JsonVariant code = mButtons[cmd.as<String>()];
+    JsonVariant code = mButtons[remoteType][cmd.as<String>()];
     if (code.success()) {
       digitalWrite(LED_PIN, LOW);
-      mIRsend.sendSAMSUNG(code.as<int>(), 32, 1);
+      if (remoteType == "samsung") {
+        mIRsend.sendSAMSUNG(code.as<int>(), 32, 1);
+      } else {
+        mIRsend.sendNEC(code.as<int>(), 32, 1);
+      }
       delay(COMMAND_DELAY_MILLIS);
       digitalWrite(LED_PIN, HIGH);
     }

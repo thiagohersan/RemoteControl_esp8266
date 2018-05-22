@@ -1,6 +1,7 @@
 var http = require('http');
 
 var postData = JSON.stringify({
+  'type': 'SAMSUNG',
   'commands': [
     'VOLUME_UP',
     'CHANNEL_DOWN',

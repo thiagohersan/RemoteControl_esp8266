@@ -1,0 +1,33 @@
+const String codesJson = "\
+{\
+  \"samsung\": {\
+    \"POWER\": 3772793023,\
+    \"VOLUME_UP\": 3772833823,\
+    \"VOLUME_DOWN\": 3772829743,\
+    \"CHANNEL_UP\": 3772795063,\
+    \"CHANNEL_DOWN\": 3772778743,\
+    \"ARROW_UP\": 3772778233,\
+    \"ARROW_DOWN\": 3772810873,\
+    \"ARROW_LEFT\": 3772819033,\
+    \"ARROW_RIGHT\": 3772794553,\
+    \"ENTER\": 3772782313,\
+    \"RETURN\": 3772783333,\
+    \"EXIT\": 3772822603\
+  },\
+  \"lg\": {\
+    \"POWER\": 551489775,\
+    \"VOLUME_UP\": 551502015,\
+    \"VOLUME_DOWN\": 551534655,\
+    \"CHANNEL_UP\": 551485695,\
+    \"CHANNEL_DOWN\": 551518335,\
+    \"ARROW_UP\": 551486205,\
+    \"ARROW_DOWN\": 551518845,\
+    \"ARROW_LEFT\": 551542815,\
+    \"ARROW_RIGHT\": 551510175,\
+    \"ENTER\": 551494365,\
+    \"RETURN\": 551490795,\
+    \"EXIT\": 551541285\
+  }\
+}\
+";
+
