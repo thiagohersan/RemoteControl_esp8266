@@ -1,27 +1,14 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-
-#include <IRremoteESP8266.h>
-#include <IRsend.h>
-
-const short IR_PIN = D2;
-const short LED_PIN = D4;
-
-ESP8266WebServer mServer(80);
-int buttonPressDurationMillis = 300;
-IRsend mIRsend(IR_PIN);
 
 #include "parameters.h"
 #include "handlers.h"
 
 void setup() {
-  pinMode(10, OUTPUT);
   mIRsend.begin();
   Serial.begin(115200);
   Serial.println("\nSetup");
-  pinMode(LED_PIN, OUTPUT);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
@@ -32,16 +19,16 @@ void setup() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("Connected\nIP: ");
+    Serial.print("Connected\nIP: ");
     Serial.println(WiFi.localIP());
 
     if (MDNS.begin(SERVER_NAME.c_str())) {
-      Serial.println("MDNS started");
+      Serial.print("MDNS started: http://");
+      Serial.println(SERVER_NAME);
     }
   }
 
-  addAllHandlers();
-
+  setupHandlers();
   mServer.begin();
   Serial.println("HTTP server started");
 }

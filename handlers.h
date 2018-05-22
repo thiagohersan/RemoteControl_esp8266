@@ -1,4 +1,14 @@
+#include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+
+const short IR_PIN = D2;
+const short LED_PIN = D4;
+
+ESP8266WebServer mServer(80);
+IRsend mIRsend(IR_PIN);
+const int COMMAND_DELAY_MILLIS = 300;
 
 StaticJsonBuffer<384> buttonBuffer;
 JsonObject& mButtons = buttonBuffer.createObject();
@@ -69,24 +79,23 @@ void handleRootPost() {
     mServer.send(500, "text/plain", String("invalid json parameter"));
   }
 
-  const int jsonPressDuration = root["pressDuration"];
-  if (jsonPressDuration) {
-    buttonPressDurationMillis = jsonPressDuration;
-  }
-
   JsonArray& commands = root["commands"];
   for (auto cmd : commands) {
     JsonVariant code = mButtons[cmd.as<String>()];
     if (code.success()) {
+      digitalWrite(LED_PIN, LOW);
       mIRsend.sendSAMSUNG(code.as<int>(), 32, 1);
-      delay(buttonPressDurationMillis);
+      delay(COMMAND_DELAY_MILLIS);
+      digitalWrite(LED_PIN, HIGH);
     }
   }
 
   mServer.send(200, "text/plain", String("success"));
 }
 
-void addAllHandlers() {
+void setupHandlers() {
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
   mServer.on("/", HTTP_GET, handleRootGet);
   mServer.on("/", HTTP_POST, handleRootPost);
   mServer.onNotFound(handleNotFound);
