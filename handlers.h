@@ -23,7 +23,6 @@ const int mButtonsLength = setupButtonMappings();
 
 String buildHelpResponse() {
   String response = "\
-<h2>Bem vindo ao servidor de controle " + SERVER_NAME + "</h2>\n\
 <h3>Para enviar comandos para o controle, \
     fa&ccedil;a um POST a esse endere&ccedil;o com um json no seguinte formato:\n\
 </h3>\n\
