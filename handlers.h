@@ -78,7 +78,7 @@ void handleRootPost() {
   for (auto cmd : commands) {
     JsonVariant code = mButtons[cmd.as<String>()];
     if (code.success()) {
-      mIRsend.sendSAMSUNG(code.as<int>(), 32, 4);
+      mIRsend.sendSAMSUNG(code.as<int>(), 32, 1);
       delay(buttonPressDurationMillis);
     }
   }

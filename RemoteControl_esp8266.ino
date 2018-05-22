@@ -10,7 +10,7 @@ const short IR_PIN = D2;
 const short LED_PIN = D4;
 
 ESP8266WebServer mServer(80);
-int buttonPressDurationMillis = 400;
+int buttonPressDurationMillis = 300;
 IRsend mIRsend(IR_PIN);
 
 #include "parameters.h"
