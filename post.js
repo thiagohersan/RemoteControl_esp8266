@@ -3,26 +3,18 @@ var http = require('http');
 var postData = JSON.stringify({
   'type': 'SAMSUNG',
   'commands': [
-    'VOLUME_UP',
-    'CHANNEL_DOWN',
+    'NAV_ENTER',
     'VOLUME_UP',
     'VOLUME_DOWN',
-    'CHANNEL_UP',
-    'CHANNEL_UP',
-    'CHANNEL_DOWN',
-    'CHANNEL_UP',
-    'CHANNEL_UP',
-    'VOLUME_DOWN',
-    'CHANNEL_DOWN',
-    'CHANNEL_DOWN'
+    'NAV_UP',
+    'NAV_DOWN'
   ]
 });
 
 console.log(postData);
 
 var postOptions = {
-  host: '10.75.124.74',
-  // host: 'rc-server.local',
+  host: '192.168.0.107',
   port: '80',
   path: '/',
   method: 'POST',

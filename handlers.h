@@ -10,12 +10,12 @@ const short LED_PIN = D4;
 
 ESP8266WebServer mServer(80);
 IRsend mIRsend(IR_PIN);
-const int COMMAND_DELAY_MILLIS = 300;
+const int COMMAND_DELAY_MILLIS = 500;
 
 String buildHelpResponse() {
-  StaticJsonBuffer<1024> buttonBuffer;
+  StaticJsonBuffer<2048> buttonBuffer;
   JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
-  JsonObject& commands = mButtons["lg"];
+  JsonObject& commands = mButtons["samsung"];
 
   String response = "\
 <h3>Para enviar comandos para o controle, \
@@ -60,7 +60,7 @@ void handleRootGet() {
 }
 
 void handleRootPost() {
-  StaticJsonBuffer<1024> buttonBuffer;
+  StaticJsonBuffer<2048> buttonBuffer;
   JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
 
   StaticJsonBuffer<512> jsonBuffer;

@@ -22,6 +22,9 @@ void setup() {
     Serial.print("Connected\nIP: ");
     Serial.println(WiFi.localIP());
 
+    Serial.print("MAC address: ");
+    Serial.println(WiFi.macAddress());
+
     if (MDNS.begin(SERVER_NAME.c_str())) {
       Serial.print("MDNS started: http://");
       Serial.println(SERVER_NAME);
