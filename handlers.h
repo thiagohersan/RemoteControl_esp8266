@@ -13,13 +13,11 @@ IRsend mIRsend(IR_PIN);
 const int COMMAND_DELAY_MILLIS = 500;
 
 String buildHelpResponse() {
-  StaticJsonBuffer<2048> buttonBuffer;
+  DynamicJsonBuffer buttonBuffer(3072);
   JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
   JsonObject& commands = mButtons["samsung"];
 
-  String response = "\
-<h3>Para enviar comandos para o controle, \
-    fa&ccedil;a um <code style=\"color: #d80000\">POST</code> a esse endere&ccedil;o com um json no seguinte formato:\n\
+  String response = " com um json no seguinte formato:\n\
 </h3>\n\
 \n\
 <pre>\n\
@@ -51,19 +49,29 @@ const String helpResponse = buildHelpResponse();
 
 void handleNotFound() {
   String errorMessage = "<h2>404: " + mServer.uri() + " not found on this server</h2>\n\n";
+
+  errorMessage += "<h3>Para enviar comandos para o controle, \
+                       fa&ccedil;a um <code style=\"color: #d80000\">POST</code> &agrave; ";
+  errorMessage += WiFi.localIP().toString();
   errorMessage += helpResponse;
+
   mServer.send(404, "text/html", errorMessage);
 }
 
 void handleRootGet() {
-  mServer.send(200, "text/html", helpResponse);
+  String rootHelpResponse = "<h3>Para enviar comandos para o controle, \
+                                 fa&ccedil;a um <code style=\"color: #d80000\">POST</code> &agrave; ";
+  rootHelpResponse += WiFi.localIP().toString();
+  rootHelpResponse += helpResponse;
+
+  mServer.send(200, "text/html", rootHelpResponse);
 }
 
 void handleRootPost() {
-  StaticJsonBuffer<2048> buttonBuffer;
+  DynamicJsonBuffer buttonBuffer(3072);
   JsonObject& mButtons = buttonBuffer.parseObject(codesJson);
 
-  StaticJsonBuffer<512> jsonBuffer;
+  DynamicJsonBuffer jsonBuffer(4096);
   JsonObject& root = jsonBuffer.parseObject(mServer.arg("plain"));
 
   if (!root.success()) {
