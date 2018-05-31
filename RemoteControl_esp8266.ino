@@ -2,21 +2,20 @@
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
 
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
+
 #include "parameters.h"
 #include "handlers.h"
 
 void setup() {
-  mIRsend.begin();
   Serial.begin(115200);
   Serial.println("\nSetup");
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
-
-  for (int counter = 0; (WiFi.status() != WL_CONNECTED) && (counter < 50); counter++) {
-    delay(600);
-    Serial.println("Trying WiFi");
-  }
+  WiFiManager wifiManager;
+  wifiManager.setAPStaticIPConfig(IPAddress(10, 0, 1, 1), IPAddress(10, 0, 1, 1), IPAddress(255, 255, 255, 0));
+  wifiManager.autoConnect("ESPAP");
 
   if (WiFi.status() == WL_CONNECTED) {
     Serial.print("Connected\nIP: ");
@@ -31,6 +30,7 @@ void setup() {
     }
   }
 
+  mIRsend.begin();
   setupHandlers();
   mServer.begin();
   Serial.println("HTTP server started");
